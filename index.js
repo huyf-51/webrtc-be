@@ -2,7 +2,28 @@ const express = require('express');
 const cors = require('cors');
 const { Server } = require('socket.io');
 
-const io = new Server(3001, { cors: { origin: '*' } });
+const app = express();
+app.use(cors({ origin: '*' }));
+app.use(express.json());
+
+const db = [
+    { name: 'huy', userId: 1 },
+    { name: 'nam', userId: 2 },
+];
+
+app.post('/login', (req, res) => {
+    db.map((user) => {
+        if (user.name == req.body.name) {
+            res.json(user.userId);
+        }
+    });
+});
+
+const server = app.listen(3000, () => {
+    console.log('server listen on port 3000');
+});
+
+const io = new Server(server, { cors: { origin: '*' } });
 io.on('connection', (socket) => {
     socket.join(JSON.parse(socket.handshake.query.userId));
     console.log('socket join > ', socket.handshake.query.userId);
@@ -30,25 +51,4 @@ io.on('connection', (socket) => {
             iceCandidate: data.iceCandidate,
         });
     });
-});
-
-const app = express();
-app.use(cors({ origin: '*' }));
-app.use(express.json());
-
-const db = [
-    { name: 'huy', userId: 1 },
-    { name: 'nam', userId: 2 },
-];
-
-app.post('/login', (req, res) => {
-    db.map((user) => {
-        if (user.name == req.body.name) {
-            res.json(user.userId);
-        }
-    });
-});
-
-app.listen(3000, () => {
-    console.log('server listen on port 3000');
 });
