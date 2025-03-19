@@ -3,7 +3,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 
 const app = express();
-app.use(cors({ origin: '*' }));
+app.use(cors({ origin: [process.env.CLIENT_URL] }));
 app.use(express.json());
 
 const db = [
@@ -23,7 +23,7 @@ const server = app.listen(3000, () => {
     console.log('server listen on port 3000');
 });
 
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: [process.env.CLIENT_URL] } });
 io.on('connection', (socket) => {
     socket.join(JSON.parse(socket.handshake.query.userId));
     console.log('socket join > ', socket.handshake.query.userId);
